@@ -16,14 +16,14 @@ class EstateLibraryBase:
     def headers(self):
         return {"Ocp-Apim-Subscription-Key": self.api_key}
 
-    def _request(self, endpoint, params):
+    def _request(self, endpoint: str, params) -> pd.DataFrame:
         url = f"{self.base_url}/{endpoint}?"
         r = requests.get(url, headers=self.headers, params=params)
         if r.status_code != 200:
             raise Exception(f"Request failed with status code {r.status_code}")
         return pd.DataFrame(r.json().get("data"))
 
-    def _geo_request(self, endpoint, params):
+    def _geo_request(self, endpoint, params) -> gpd.GeoDataFrame:
         url = f"{self.base_url}/{endpoint}?"
         r = requests.get(url, headers=self.headers, params=params)
         if r.status_code != 200:
@@ -38,7 +38,7 @@ class EstateLibraryBase:
             pass
 
     @staticmethod
-    def create_tile_gdf(self, z, x, y):
+    def create_tile_gdf(self, z: int, x: int, y: int) -> gpd.GeoDataFrame:
         """
         タイル座標からGeoDataFrameを作成する
 

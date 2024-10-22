@@ -17,7 +17,7 @@ class EstatePriceData(EstateLibraryBase):
         params = {"year": year, "quater": quater, "area": pref_code, "city": city_code}
         return self._request("XIT001?", params)
 
-    def kante_hyoka(self, year: int, area: str, division: str):
+    def kantei_hyoka(self, year: int, area: str, division: str) -> pd.DataFrame:
         """
         必要パラメータ
         year: int
@@ -47,7 +47,7 @@ class EstatePriceData(EstateLibraryBase):
         response_format="geojson",
         priceClassification: str = None,
         landTypeCode: str = None,
-    ):
+    ) -> gpd.GeoDataFrame:
         """
         Params:
             z: int zoomの値は11 - 15
@@ -91,7 +91,7 @@ class EstatePriceData(EstateLibraryBase):
         response_format="geojson",
         priceClassification: str = None,
         useCategoryCode: str = None,
-    ):
+    ) -> gpd.GeoDataFrame:
         """
         Params:
             z: int zoomの値は13 - 15
@@ -131,24 +131,6 @@ class EstatePriceData(EstateLibraryBase):
         # df['year_on_year_change_rate'] = df['year_on_year_change_rate'].map(lambda x: float(x))
         return df
 
-    def fudosan_kanteisho(self, year, area, division):
-        """
-        Params:
-            year: int (YYYY 4桁)
-            area: str 都道府県コード(NN 2桁数値)
-            division: str(NN 2桁数値)
-                00…住宅地
-                03…宅地見込地
-                05…商業地
-                07…準工業地
-                09…工業地
-                10…調整区域内宅地
-                13…現況林地
-                20…林地（都道府県地価調査）
-        """
-        params = {"year": year, "area": area, "division": division}
-        return self._request("XCT001?", params)
-
 
 if __name__ == "__main__":
 
@@ -182,3 +164,4 @@ if __name__ == "__main__":
     print(address_tile)
     d2 = epd.koji_chika(address_tile[0], address_tile[1], address_tile[2], 2023)
     print(d2)
+
