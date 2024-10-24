@@ -2,19 +2,42 @@ import math
 import geopandas as gpd
 from shapely.geometry import box
 import requests
+import jageocoder as jac
+from typing import Tuple
 
 
-def latlon_to_tile(lng, lat, zoom=11):
+
+def latlon(address: str) -> list[float, float]:
+    """
+    日本語の住所サーチ用かな？
+
+    Returns: list[float, float]
+
+    """
+    jac.init(url='https://jageocoder.info-proto.com/jsonrpc')
+
+    try:
+        res = jac.search(address)
+        x = res['candidates'][0]['x']
+        y = res['candidates'][0]['y']
+        point = [x, y]
+        return point
+    except Exception as e:
+        print(e)
+        return None
+
+
+def latlon_to_tile(zoom: int, lng: float, lat: float) -> Tuple[int, int, int]:
     """
     緯度、経度、ズームレベルからタイル座標を求める関数。
 
     Args:
+        zoom (int): ズームレベル
         lat (float): 緯度
         lng (float): 経度
-        zoom (int): ズームレベル
-
+        
     Returns:
-        tuple: タイルのx座標、y座標
+        tuple: zoom, タイルのx座標、y座標
     """
     n = 2.0**zoom
     x_tile = int((lng + 180.0) / 360.0 * n)
@@ -31,22 +54,7 @@ def latlon_to_tile(lng, lat, zoom=11):
     return zoom, x_tile, y_tile
 
 
-def latlon(address):
-    url = "https://msearch.gsi.go.jp/address-search/AddressSearch"
-    params = {
-        "q": address,
-    }
-    try:
-        res = requests.get(url, params=params)
-        res.raise_for_status()
-        coords = res.json()[0]["geometry"]["coordinates"]
-        point = [coords[0], coords[1]]
-        return point
-    except requests.exceptions.HTTPError as e:
-        print(e)
-
-
-def tile_to_latlon(self, x, y, z):
+def tile_to_latlon(x, y, z):
     """
     タイル座標を緯度経度に変換する
 
@@ -86,7 +94,7 @@ def create_tile_geometry(self, x, y, z):
 if __name__ == "__main__":
     address = '京都市下京区玉津島町294'
     address_latlon = latlon(address)
-    address_tile = latlon_to_tile(address_latlon[0], address_latlon[1])
+    address_tile = latlon_to_tile(10, address_latlon[0], address_latlon[1])
 
     print(address_latlon)
     print(address_tile)
