@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 from .types import PriceClassification
 
@@ -22,9 +22,31 @@ class TradeRecord(_BaseModel):
 
 
 class Municipality(_BaseModel):
-    prefecture_code: Optional[str] = Field(alias="prefectureCode", default=None)
-    municipality_code: Optional[str] = Field(alias="municipalityCode", default=None)
-    municipality_name: Optional[str] = Field(alias="municipalityName", default=None)
+    prefecture_code: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("prefectureCode", "prefecture_code", "prefCode"),
+    )
+    municipality_code: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("municipalityCode", "municipality_code", "id"),
+    )
+    municipality_name: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            "municipalityName",
+            "municipality_name",
+            "name",
+            "name_ja",
+        ),
+    )
+    municipality_name_en: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            "municipalityNameEn",
+            "municipality_name_en",
+            "name_en",
+        ),
+    )
 
 
 class Prefecture(_BaseModel):
