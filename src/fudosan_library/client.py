@@ -452,26 +452,33 @@ class FudosanClient:
         matches: List[tuple[int, Municipality]] = []
 
         for municipality in municipalities:
-            name = municipality.municipality_name
-            if not name:
+            names = [
+                municipality.municipality_name,
+                municipality.municipality_name_en,
+            ]
+            names = [name for name in names if name]
+            if not names:
                 continue
 
-            target_name = name.casefold() if casefold else name
-            variations = {target_name}
-            if casefold:
-                variations.add(target_name.replace(" ", ""))
-                replacements = {
-                    " city": "-shi",
-                    " ward": "-ku",
-                    " town": "-cho",
-                    " village": "-mura",
-                }
-                for suffix, replacement in replacements.items():
-                    if target_name.endswith(suffix):
-                        variations.add(target_name[: -len(suffix)] + replacement)
-            for candidate in variations:
-                if candidate and candidate in haystack:
-                    matches.append((len(candidate), municipality))
+            for original_name in names:
+                target_name = original_name.casefold() if casefold else original_name
+                variations = {target_name}
+                if casefold:
+                    variations.add(target_name.replace(" ", ""))
+                    replacements = {
+                        " city": "-shi",
+                        " ward": "-ku",
+                        " town": "-cho",
+                        " village": "-mura",
+                    }
+                    for suffix, replacement in replacements.items():
+                        if target_name.endswith(suffix):
+                            variations.add(target_name[: -len(suffix)] + replacement)
+                for candidate in variations:
+                    if candidate and candidate in haystack:
+                        matches.append((len(candidate), municipality))
+                        break
+                if matches and matches[-1][1] is municipality:
                     break
 
         if matches:
